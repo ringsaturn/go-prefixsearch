@@ -8,28 +8,28 @@ import (
 )
 
 // SearchTree is struct to handle search tree
-type SearchTree struct {
-	root *node
+type SearchTree[T comparable] struct {
+	root *node[T]
 }
 
-type node struct {
-	value    interface{}
+type node[T comparable] struct {
+	value    T
 	childnum uint
-	childs   map[rune]*node
+	childs   map[rune]*node[T]
 }
 
 // New creates new search tree
-func New() *SearchTree {
-	return &SearchTree{
-		root: &node{childs: map[rune]*node{}},
+func New[T comparable]() *SearchTree[T] {
+	return &SearchTree[T]{
+		root: &node[T]{childs: map[rune]*node[T]{}},
 	}
 }
 
 // Add one leaf to tree
-func (tree *SearchTree) Add(key string, value interface{}) {
+func (tree *SearchTree[T]) Add(key string, value T) {
 	current := tree.root
 
-	needUpdate := (nil == tree.Search(key))
+	needUpdate := (*new(T) == tree.Search(key))
 
 	for _, sym := range strings.ToLower(key) {
 		if needUpdate {
@@ -37,7 +37,7 @@ func (tree *SearchTree) Add(key string, value interface{}) {
 		}
 		next, ok := current.childs[sym]
 		if !ok {
-			newone := &node{childs: map[rune]*node{}}
+			newone := &node[T]{childs: map[rune]*node[T]{}}
 			current.childs[sym] = newone
 			next = newone
 		}
@@ -51,21 +51,21 @@ func (tree *SearchTree) Add(key string, value interface{}) {
 }
 
 // AutoComplete returns autocomplete suggestions for given prefix
-func (tree *SearchTree) AutoComplete(prefix string) []interface{} {
+func (tree *SearchTree[T]) AutoComplete(prefix string) []T {
 	// walk thru prefix symbols
 	current := tree.root
 	for _, sym := range prefix {
 		var ok bool
 		current, ok = current.childs[unicode.ToLower(sym)]
 		if !ok {
-			return []interface{}{}
+			return make([]T, 0)
 		}
 	}
 
 	// we have found, now very stupid tree walk :)
-	result := make([]interface{}, 0, current.childnum)
-	current.recurse(func(v interface{}) {
-		if nil != v {
+	result := make([]T, 0, current.childnum)
+	current.recurse(func(v T) {
+		if *new(T) != v {
 			result = append(result, v)
 		}
 	})
@@ -73,19 +73,19 @@ func (tree *SearchTree) AutoComplete(prefix string) []interface{} {
 }
 
 // Search searches for value of key
-func (tree *SearchTree) Search(key string) interface{} {
+func (tree *SearchTree[T]) Search(key string) T {
 	current := tree.root
 	for _, sym := range key {
 		var ok bool
 		current, ok = current.childs[unicode.ToLower(sym)]
 		if !ok {
-			return nil
+			return *new(T)
 		}
 	}
 	return current.value
 }
 
-func (n *node) recurse(callback func(interface{})) {
+func (n *node[T]) recurse(callback func(T)) {
 	callback(n.value)
 	for _, v := range n.childs {
 		v.recurse(callback)

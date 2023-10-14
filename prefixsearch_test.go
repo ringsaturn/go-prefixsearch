@@ -16,11 +16,7 @@ func ExampleSearchTree_AutoComplete() {
 	st.Add("Привет, мир!", 4)
 	st.Add("Надо же :)", 5)
 
-	// converting []interface{} to []int to use sort.Ints function :)
-	intResult := []int{}
-	for _, x := range st.AutoComplete("HE") {
-		intResult = append(intResult, x)
-	}
+	intResult := st.AutoComplete("HE")
 
 	sort.Ints(intResult)
 	fmt.Println(intResult)

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/ringsaturn/go-prefixsearch"
+	"github.com/ringsaturn/prefixsearch"
 )
 
 // ExampleAutoComplete just creates an object and does simple test

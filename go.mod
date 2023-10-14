@@ -1,3 +1,3 @@
-module github.com/ringsaturn/go-prefixsearch
+module github.com/ringsaturn/prefixsearch
 
 go 1.21

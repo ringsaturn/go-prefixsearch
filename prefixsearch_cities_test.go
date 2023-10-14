@@ -7,40 +7,142 @@ import (
 	"github.com/ringsaturn/prefixsearch"
 )
 
-type City struct {
+type city struct {
 	Name    string
 	Country string
 	Lng     float64
 	Lon     float64
 }
 
-func (c *City) LessThan(j City) bool { return c.Name < j.Name }
-func (c *City) EqualTo(j City) bool  { return c.Name == j.Name }
+func (c city) LessThan(j city) bool { return c.Name < j.Name }
+func (c city) EqualTo(j city) bool  { return c.Name == j.Name }
 
-func BenchmarkSearchTree_Cities(b *testing.B) {
-	st := prefixsearch.New[City]()
+var commonCities = []string{
+	"New York",
+	"London",
+	"Beijing",
+	"Haidian",
+	"Tokyo",
+	"Shanghai",
+	"Paris",
+	"Berlin",
+	"Madrid",
+	"Rome",
+}
+
+var commonInputs = map[string][]string{
+	"New York": {
+		"N",
+		"Ne",
+		"New",
+		"New ",
+		"New Y",
+		"New Yo",
+		"New Yor",
+		"New York",
+	},
+	"London": {
+		"L",
+		"Lo",
+		"Lon",
+		"Lond",
+		"Londo",
+		"London",
+	},
+	"Beijing": {
+		"B",
+		"Be",
+		"Bei",
+		"Beij",
+		"Beiji",
+		"Beijin",
+		"Beijing",
+	},
+	"Haidian": {
+		"H",
+		"Ha",
+		"Hai",
+		"Haid",
+		"Haidi",
+		"Haidia",
+		"Haidian",
+	},
+	"Tokyo": {
+		"T",
+		"To",
+		"Tok",
+		"Toky",
+		"Tokyo",
+	},
+	"Shanghai": {
+		"S",
+		"Sh",
+		"Sha",
+		"Shan",
+		"Shang",
+		"Shangh",
+		"Shangha",
+		"Shanghai",
+	},
+	"Paris": {
+		"P",
+		"Pa",
+		"Par",
+		"Paris",
+	},
+	"Berlin": {
+		"B",
+		"Be",
+		"Ber",
+		"Berl",
+		"Berli",
+		"Berlin",
+	},
+	"Madrid": {
+		"M",
+		"Ma",
+		"Mad",
+		"Madri",
+		"Madrid",
+	},
+}
+
+func newSearchTree_Cities() *prefixsearch.SearchTree[city] {
+	st := prefixsearch.New[city]()
 	for _, c := range gocitiesjson.Cities {
-		city := City{c.Name, c.Country, c.Lng, c.Lat}
+		city := city{c.Name, c.Country, c.Lng, c.Lat}
 		st.Add(city.Name, city)
 	}
-	words := []string{
-		"New",
-		"New York",
-		"London",
-		"Beijing",
-		"Tokyo",
-		"Shanghai",
-		"Paris",
-		"Berlin",
-		"Madrid",
-		"Rome",
-	}
-	for _, word := range words {
-		b.ResetTimer()
-		b.Run(word, func(b *testing.B) {
+
+	return st
+}
+
+func BenchmarkSearchTree_Search_Cities(b *testing.B) {
+	st := newSearchTree_Cities()
+	b.ResetTimer()
+
+	for _, city := range commonCities {
+		b.Run(city, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				st.Search(word)
+				_ = st.Search(city)
 			}
 		})
+	}
+}
+
+func BenchmarkSearchTree_AutoComplete_Cities(b *testing.B) {
+	st := newSearchTree_Cities()
+	b.ResetTimer()
+
+	for cityName, inputs := range commonInputs {
+		for _, input := range inputs {
+			b.Run(cityName+"_"+input, func(b *testing.B) {
+				for i := 0; i < b.N; i++ {
+					if len(st.AutoComplete(input)) == 0 {
+						b.Fatal("no result")
+					}
+				}
+			})
+		}
 	}
 }

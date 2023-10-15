@@ -10,6 +10,9 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GOMAXPROCS: 1
     steps:
     - uses: actions/checkout@v4
 

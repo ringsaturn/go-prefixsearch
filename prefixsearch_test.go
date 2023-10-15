@@ -35,16 +35,6 @@ func (i *Item) EqualTo(j Item) bool  { return i.ID == j.ID }
 // Support of unicode symbols and using struct as value
 func ExampleSearchTree_AutoComplete_unicode() {
 
-	// Item define as:
-	// 	type Item struct {
-	// 		ID      int
-	// 		Name    string
-	// 		Comment string
-	// 	}
-
-	// 	func (i *Item) LessThan(j Item) bool { return i.ID < j.ID }
-	// 	func (i *Item) EqualTo(j Item) bool  { return i.ID == j.ID }
-
 	data := []Item{
 		{1, "Hello world!", "First example"},
 		{2, "New impressions", "Second example"},

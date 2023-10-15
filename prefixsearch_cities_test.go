@@ -11,7 +11,7 @@ type city struct {
 	Name    string
 	Country string
 	Lng     float64
-	Lon     float64
+	Lat     float64
 }
 
 func (c city) LessThan(j city) bool { return c.Name < j.Name }
@@ -110,7 +110,12 @@ var commonInputs = map[string][]string{
 func newSearchTree_Cities() *prefixsearch.SearchTree[city] {
 	st := prefixsearch.New[city]()
 	for _, c := range gocitiesjson.Cities {
-		city := city{c.Name, c.Country, c.Lng, c.Lat}
+		city := city{
+			Name:    c.Name,
+			Country: c.Country,
+			Lng:     c.Lng,
+			Lat:     c.Lat,
+		}
 		st.Add(city.Name, city)
 	}
 
